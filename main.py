@@ -5,38 +5,37 @@ from PIL import Image,ImageTk
 #Functions
 def raise_frame(frame):
     frame.tkraise()
+    display_win_loss.configure(text= " ")
 
 def check_win():
     length = grid_size.get()
+
     #Horizontals
     for i in range(0,length*length,length):
-        if set([button.text for button in GameButtonList[i:i+length]]) in ({'X'},{'O'}):
-            [[0,0,0],
-            [0,0,0],
-            [0,0,0]]
-    #Verticals
-    for i in range(0,length):
-        if set([button.text for button in GameButtonList[i::length]]) in ({'X'},{'O'}):
-            [[0,1,2],
-            [1,0,0],
-            [0,0,0]]
-    #Diagonals
-    for i in (-1,1):
-        if set([button.text for button in GameButtonList[0 if i==1 else length-1::length+i]]) in ({'X'},{'O'}):
-            [[0,1,2],
-            [1,0,0]
-            [0,0,0]]
+        win = True
+        StartofHorizontal = GameButtonList[i]
+        for button in GameButtonList[i+1:i+length]:
+            if button.cget('text') != StartofHorizontal.cget('text'):
+                win = False
+        if win and StartofHorizontal.cget('text') != '':
+            return StartofHorizontal.cget('text')
+    return False
+    
+
+    #Vertical
+
 
 def game_button_press(button):
     global player_turn
     if button.cget('text') == '':
         button.config(text=player_turn,fg='black')
         player_turn = {'X':'O','O':'X'}[player_turn]
-        #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-        ' Call a function to check whether someone won '
-        #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-
+        winner = check_win()
+        if winner:
+            display_win_loss.config(text='Player ' +winner+ ' Wins!') 
+            
 def start_game():
+    global GameButtonList
     GameButtonList = []
     size = grid_size.get()
     for i in range(size**2):
@@ -63,6 +62,7 @@ Start_button = Button(home_frame,text="Start",bg='Red',fg="black",font="Courier"
 FAQ_button = Button(home_frame,text="FAQ",fg="black",bg="Yellow",font="Courier", command = lambda: raise_frame(faq_frame))
 Options_button = Button(home_frame,text="Options",bg='blue',fg="black",font="Courier", command = lambda: raise_frame(options_frame))
 Gamemode_button = Button(home_frame,text="Game Modes",bg='orange',fg="black",font="Courier", command = lambda: raise_frame(gamemode_frame))
+
 #>
 home_frame.place(x=0,y=0,width=600,height=500)
 Welcome_label.place(x=150,y=50,width=300,height=50)
@@ -70,24 +70,29 @@ Start_button.place(x=250,y=150,width=110,height=50)
 FAQ_button.place(x=250,y=300,width=110,height=50)
 Options_button.place(x=250,y=250,width=110,height=50)
 Gamemode_button.place(x=250,y=200,width=110,height=50)
+
 #Home Page Images
 x_resize1 = 95,95
 x = ImageTk.PhotoImage(Image.open("x.png").resize(x_resize1))
 home_x= Label(home_frame,image=x)
 home_x.place(x=430,y=190)
 o_resize1 = 150,150
-o = ImageTk.PhotoImage(Image.open("ok1.png").resize(o_resize1))
+o = ImageTk.PhotoImage(Image.open("ok1.png").resize(o_resize1)) 
 home_plus= Label(home_frame,image=o)
 home_plus.place(x=60,y=190)
-
-
 
 #Start Page
 start_frame=Frame(root)
 goback_start=Button(start_frame,text="Home",font="Courier",command = lambda: raise_frame(home_frame))
+
 #>
 start_frame.place(x=0,y=0,width=600,height=500)
 goback_start.place(x=250,y=20,width=100,height=50)
+
+display_win_loss = Label(start_frame,text='',font="Courier 25 bold ")
+display_win_loss.place(x=162,y=420)
+
+
 
 
 #Gamemodes Page
@@ -144,12 +149,13 @@ goback_options.place(x=250,y=20,width=100,height=50)
 
 #FAQ Page
 faq_frame=Frame(root)
-faq_label=Label(faq_frame,text="[FAQ: Frequently Asked Questions]\n This is a tic tac toe game in which you play tic tac\n toe to win games. There are many different game modes to enjoy,\n such as 5x5, 4x4, and 3x3 mode. ",font="Courier 10 ")
+faq_label=Label(faq_frame,text="[FAQ: Frequently Asked Questions]\n This is a tic tac toe game in which you play tic tac\n toe to win games. There are many different game modes to enjoy,\n such as 5x5, 4x4, and 3x3 modes. ",font="Courier 10 ")
 goback_faq=Button(faq_frame,text="Home",font="Courier",command = lambda: raise_frame(home_frame))
 #>
 faq_frame.place(x=0,y=0,width=600,height=500)
 faq_label.place(x=50,y=90,width=500,height=200)
 goback_faq.place(x=250,y=20,width=100,height=50)
+
 
 
 raise_frame(home_frame)
