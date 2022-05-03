@@ -13,48 +13,51 @@ def play_again():
         button.config(text='',state='normal')
     display_win_loss.config(text='')
 
-def check_win():
+def check_win(horizontal,vertical,diagonal):
     length = grid_size.get()
 
     #Horizontals
-    for i in range(0,length*length,length):
-        win = True
-        StartofHorizontal = GameButtonList[i]
-        for button in GameButtonList[i+1:i+length]:
-            if button.cget('text') != StartofHorizontal.cget('text'):
-                win = False
-        if win and StartofHorizontal.cget('text') != '':
-            return StartofHorizontal.cget('text')
+    if horizontal:
+        for i in range(0,length*length,length):
+            win = True
+            StartofHorizontal = GameButtonList[i]
+            for button in GameButtonList[i+1:i+length]:
+                if button.cget('text') != StartofHorizontal.cget('text'):
+                    win = False
+            if win and StartofHorizontal.cget('text') != '':
+                return StartofHorizontal.cget('text')
 
     #Verticals
-    for i in range(0,length):
-        win = True
-        StartofVertical = GameButtonList[i]
-        for button in GameButtonList[i+length::length]:
-            if button.cget('text') != StartofVertical.cget('text'):
-                win = False
-        if win and StartofVertical.cget('text') != '':
-            return StartofVertical.cget('text')
+    if vertical:
+        for i in range(0,length):
+            win = True
+            StartofVertical = GameButtonList[i]
+            for button in GameButtonList[i+length::length]:
+                if button.cget('text') != StartofVertical.cget('text'):
+                    win = False
+            if win and StartofVertical.cget('text') != '':
+                return StartofVertical.cget('text')
 
     #Diagonals
-    win = True
-    StartofVertical = GameButtonList[0]
-    for button in GameButtonList[0::length+1]:
-        if button.cget('text') != StartofVertical.cget('text'):
-            win = False
-    if win and StartofVertical.cget('text') != '':
-        return StartofVertical.cget('text')
-    win = True
-    StartofVertical = GameButtonList[length-1]
-    for button in GameButtonList[length-1::length-1][:-1]:
-        if button.cget('text') != StartofVertical.cget('text'):
-            win = False
-    if win and StartofVertical.cget('text') != '':
-        return StartofVertical.cget('text')
+    if diagonal:
+        win = True
+        StartofDiagonal = GameButtonList[0]
+        for button in GameButtonList[0::length+1]:
+            if button.cget('text') != StartofDiagonal.cget('text'):
+                win = False
+        if win and StartofDiagonal.cget('text') != '':
+            return StartofDiagonal.cget('text')
+        win = True
+        StartofDiagonal = GameButtonList[length-1]
+        for button in GameButtonList[length-1::length-1][:-1]:
+            if button.cget('text') != StartofDiagonal.cget('text'):
+                win = False
+        if win and StartofDiagonal.cget('text') != '':
+            return StartofDiagonal.cget('text')
 
-    #Full Board
-    if all(button.cget('text') for button in GameButtonList):
-        return 'Tie'
+        #Full Board
+        if all(button.cget('text') for button in GameButtonList):
+            return 'Tie'
 
     return False
 
@@ -63,7 +66,11 @@ def game_button_press(button):
     if button.cget('text') == '':
         button.config(text=player_turn,fg='black')
         player_turn = {'X':'O','O':'X'}[player_turn]
-        winner = check_win()
+        winner = check_win(True,False,False)
+        if winner == False:
+            winner = check_win(False,True,False)
+        if winner == False:
+            winner = check_win(False,False,True)
         if winner:
             display_win_loss.config(text='Player '+winner+' Wins!' if winner!='Tie' else 'Nobody Wins!') 
             for button in GameButtonList:
@@ -99,7 +106,7 @@ Start_button = Button(home_frame,text="Start",bg='Red',fg="black",font="Courier"
 Options_button = Button(home_frame,text="Directions",bg='yellow',fg="black",font="Courier", command = lambda: raise_frame(options_frame))
 Gamemode_button = Button(home_frame,text="Game Modes",bg='blue',fg="black",font="Courier", command = lambda: raise_frame(gamemode_frame))
 
-#>
+#
 home_frame.place(x=0,y=0,width=600,height=500)
 Welcome_label.place(x=150,y=50,width=300,height=50)
 Start_button.place(x=250,y=150,width=110,height=50)
@@ -121,7 +128,7 @@ start_frame=Frame(root)
 goback_start=Button(start_frame,text="Home",font="Courier",command = lambda: raise_frame(home_frame))
 start_play_again = Button(start_frame,text='Play again',font='Courier',state='normal',command = play_again)
 
-#>
+#
 start_frame.place(x=0,y=0,width=600,height=500)
 goback_start.place(x=250,y=20,width=100,height=50)
 
@@ -136,7 +143,8 @@ gamemode_label_2=Label(gamemode_frame,text="[4x4 Grid] ",font=" Courier 13 bold"
 gamemode_label_3=Label(gamemode_frame,text="[3x3 Grid] ",font=" Courier 13 bold")
 gamemode_label_4=Label(gamemode_frame,text="Select any of the game modes to play with a new grid! ",font=" Courier 13 underline",bg="green")
 goback_gamemode=Button(gamemode_frame,text="Home",font="Courier",command = lambda: raise_frame(home_frame))
-#>
+
+#
 gamemode_frame.place(x=0,y=0,width=600,height=500)
 gamemode_label_1.place(x=370,y=150,width=300,height=50)
 gamemode_label_2.place(x=160,y=150,width=300,height=50)
@@ -172,11 +180,12 @@ Button3.place(x=435,y=225)
 
 #Instructions Page
 options_frame=Frame(root)
-options_label=Label(options_frame,text="Beta Beta Beta Beta Beta Beta\n Beta Beta Beta Beta Beta Beta\n Beta Beta Beta Beta Beta Beta\n Beta Beta Beta Beta Beta Beta",font="Courier")
+options_label=Label(options_frame,text="○ Chose a game mode to start the game\n\n○ The objective is to complete a row\n diagnolly/vertically/horizontally\n\n ○ If you lose, play again until you win!\n\n\n",font="Courier 15 bold")
 goback_options=Button(options_frame,text="Home",font="Courier",command = lambda: raise_frame(home_frame))
-#>
+
+#
 options_frame.place(x=0,y=0,width=600,height=500)
-options_label.place(x=150,y=50,width=300,height=300)
+options_label.place(x=50,y=80,width=500,height=300)
 goback_options.place(x=250,y=20,width=100,height=50)
 
 raise_frame(home_frame)
